@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Candle Shop</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Comic Sans MS, sans-serif; background: #fff; color: #333; }
+
+    header {
+      background: #ff9933;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #442200;
+    }
+
+    .icons span {
+      margin-left: 1rem;
+      cursor: pointer;
+    }
+
+    .promo-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff7e6;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .promo-banner img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .promo-banner .promo-text {
+      font-size: 1.2rem;
+      color: #cc5500;
+      font-weight: bold;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #fafafa;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      transition: background 0.3s, transform 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      background: #fff0d5;
+      transform: scale(1.02);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    .card-title, .card-desc {
+      pointer-events: none;
+    }
+
+    .card-title {
+      margin: 0.5rem 0;
+      font-weight: bold;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .buy-btn {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #cc5500;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .buy-btn:hover {
+      background: #a94400;
+    }
+
+    .pagination {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .pagination button {
+      margin: 0 0.25rem;
+      padding: 0.5rem 1rem;
+      background: #eee;
+      border: none;
+      cursor: pointer;
+    }
+
+    .pagination .active {
+      background: #cc5500;
+      color: #fff;
+    }
+
+    .cart-overlay {
+      position: fixed;
+      top: 0; right: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: flex-end;
+      z-index: 10;
+    }
+
+    .cart {
+      background: white;
+      width: 300px;
+      height: 100%;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-items {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .demo-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 20;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .demo-screen button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #cc5500;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    footer {
+      background: #f2f2f2;
+      padding: 1rem 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    footer a {
+      margin: 0 1rem;
+      color: #777;
+      text-decoration: none;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+
+    footer a:hover {
+      color: #cc5500;
+    }
+
+    .product-detail {
+      display: none;
+      padding: 2rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .product-detail img {
+      width: 100%;
+      border-radius: 1rem;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-info h2 {
+      margin-bottom: 1rem;
+    }
+
+    .product-info p {
+      margin-bottom: 1rem;
+    }
+
+    .back-btn {
+      margin-top: 2rem;
+      background: #444;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>CANDLE SHOP</div>
+  <div class="icons">
+    <span id="search">🔍</span>
+    <span id="profile">👤</span>
+    <span id="cartIcon">🛒</span>
+  </div>
+</header>
+
+<div class="promo-banner">
+  <img src="https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/b40e5132-4a0a-47c9-930b-97cb3d22e99d.jpeg" alt="Promo">
+  <div class="promo-text">Get 10% OFF on all orders today!</div>
+</div>
+
+<main>
+  <div class="product-grid" id="productGrid"></div>
+  <div class="pagination" id="pagination"></div>
+  <div class="product-detail" id="productDetail"></div>
+</main>
+
+<footer>
+  <a onclick="showDemo()">Contact Us</a>
+  <a onclick="showDemo()">FAQ</a>
+  <a onclick="showDemo()">Careers</a>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay">
+  <div class="cart">
+    <div class="cart-header">
+      <h3>Cart</h3>
+      <button id="closeCart">✖</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <p>Total: $<span id="total">0</span></p>
+  </div>
+</div>
+
+<div class="demo-screen" id="demoScreen">
+  <p>This is just a demo version.</p>
+  <button onclick="document.getElementById('demoScreen').style.display='none'">Back</button>
+</div>
+
+<script>
+  const products = [
+    {
+      id: 1, title: "Lavender Candle", desc: "Relaxing lavender scent",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/277e2076-b62c-4744-b75c-d5845d4aa9af.jpeg", price: 12,
+      extra: "Infused with essential lavender oils for stress relief and peaceful sleep. Burns up to 30 hours."
+    },
+    {
+      id: 2, title: "Vanilla Bliss", desc: "Warm vanilla aroma",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/8f2772b6-93e0-4475-8c59-514e0e341527.jpeg", price: 14,
+      extra: "Crafted with creamy vanilla beans. Ideal for cozy evenings and relaxation rituals."
+    },
+    {
+      id: 3, title: "Citrus Burst", desc: "Fresh lemon and orange",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/01dce7f1-7c5f-4463-a919-14b953ff43f4.jpeg", price: 11,
+      extra: "Energizing citrus blend to uplift mood and refresh the air. Contains real fruit extracts."
+    },
+    {
+      id: 4, title: "Rose Garden", desc: "Classic floral fragrance",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/52acfee3-a1ba-403f-baef-e12366994a9d.jpeg", price: 15,
+      extra: "Inspired by blooming rose gardens. Perfect for romantic dinners or self-care evenings."
+    },
+    {
+      id: 5, title: "Woodland Spice", desc: "Earthy and warm",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/79ed2f95-1906-43aa-b487-6cc5d9d9650e.jpeg", price: 13,
+      extra: "Blended with cedarwood and cinnamon. Brings a cozy forest cabin feel into your home."
+    },
+    {
+      id: 6, title: "Ocean Breeze", desc: "Clean and refreshing",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/0df684d2-879b-4de6-8871-57963a08f5ec.jpeg", price: 12,
+      extra: "Reminiscent of sea air and crashing waves. Ideal for refreshing any space."
+    },
+    {
+      id: 7, title: "Berry Delight", desc: "Sweet berries aroma",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/7920ead9-a4b8-4e35-9874-f177b4a6e7fa.jpeg", price: 13,
+      extra: "Juicy blend of strawberries, raspberries, and blueberries. Sweet and playful."
+    },
+    {
+      id: 8, title: "Pumpkin Spice", desc: "Perfect for autumn",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/37b0900a-4a85-4664-8d4f-6e1a6158fde2.jpeg", price: 14,
+      extra: "Classic fall favorite with cinnamon, nutmeg, and clove. Creates a warm seasonal vibe."
+    },
+    {
+      id: 9, title: "Jasmine Night", desc: "Soft jasmine scent for calm evenings",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/30649a72-bfc4-4e60-94d8-b2283a2d2447.jpeg", price: 13,
+      extra: "Romantic and floral. Great for winding down after a long day or setting a calm mood."
+    },
+    {
+      id: 10, title: "Mint Eucalyptus", desc: "Cooling mint with herbal notes",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/5dcfd651-a837-416e-b011-5609859260d3.jpeg", price: 11,
+      extra: "Invigorating blend that clears the senses. Ideal for focus and clarity."
+    },
+    {
+      id: 11, title: "Caramel Dream", desc: "Rich and sweet caramel aroma",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/c0621ce0-b7c0-43b8-be6f-4ef30d811e22.jpeg", price: 14,
+      extra: "Decadent caramel swirls with creamy undertones. Perfect for dessert lovers."
+    },
+    {
+      id: 12, title: "Coconut Shore", desc: "Tropical coconut breeze",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/e1f72648-792b-4d9b-851c-be41d068e400.jpeg", price: 12,
+      extra: "Takes you to a beach getaway. Light coconut with hints of vanilla and sea salt."
+    },
+    {
+      id: 13, title: "Amber Glow", desc: "Warm amber with a hint of musk",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/4db3761b-1d6b-486e-940f-9b38d6a949cb.jpeg", price: 13,
+      extra: "Mysterious and sensual. A rich blend for cozy nights or ambient lighting."
+    },
+    {
+      id: 14, title: "Green Tea Zen", desc: "Fresh and calming green tea",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/cbd05ccb-6728-4590-9232-64e4a01b9412.jpeg", price: 10,
+      extra: "Light and refreshing. Brings spa-like serenity into your space."
+    },
+    {
+      id: 15, title: "Apple Orchard", desc: "Crisp red apple scent",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/e0f0d584-1c24-4c83-a843-c3e8383633fb.jpeg", price: 12,
+      extra: "Juicy apple aroma with a touch of cinnamon. Brings the feeling of a fall harvest."
+    },
+    {
+      id: 16, title: "Honey Vanilla", desc: "Sweet honey blended with vanilla",
+      img: "https://uploads.onecompiler.io/43n9hghfn/43rt4tjku/aaa11456-90f4-4a1a-9421-70dea5b298a7.jpeg", price: 11,
+      extra: "A smooth and comforting blend. Great for cozy spaces and warm atmospheres."
+    }
+  ];
+
+  let currentPage = 1;
+  const perPage = 8;
+  const cart = [];
+
+  const productGrid = document.getElementById("productGrid");
+  const pagination = document.getElementById("pagination");
+  const cartOverlay = document.getElementById("cartOverlay");
+  const cartItems = document.getElementById("cartItems");
+  const totalDisplay = document.getElementById("total");
+  const productDetail = document.getElementById("productDetail");
+
+  function renderProducts() {
+    productGrid.innerHTML = '';
+    productGrid.style.display = 'grid';
+    productDetail.style.display = 'none';
+
+    const start = (currentPage - 1) * perPage;
+    const items = products.slice(start, start + perPage);
+
+    items.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      card.innerHTML = `
+        <img src="${p.img}" alt="${p.title}">
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.desc}</div>
+        <button class="buy-btn">Buy</button>
+      `;
+
+      card.querySelector(".buy-btn").onclick = e => {
+        e.stopPropagation();
+        addToCart(p);
+      };
+
+      card.onclick = () => showProductDetail(p);
+
+      productGrid.appendChild(card);
+    });
+  }
+
+  function renderPagination() {
+    pagination.innerHTML = '';
+    const totalPages = Math.ceil(products.length / perPage);
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add('active');
+      btn.onclick = () => {
+        currentPage = i;
+        renderProducts();
+        renderPagination();
+      };
+      pagination.appendChild(btn);
+    }
+  }
+
+  function showProductDetail(product) {
+    productGrid.style.display = 'none';
+    pagination.style.display = 'none';
+    productDetail.style.display = 'grid';
+    productDetail.innerHTML = `
+      <img src="${product.img}" alt="${product.title}">
+      <div class="product-info">
+        <h2>${product.title}</h2>
+        <p>${product.desc}</p>
+        <p><strong>$${product.price}</strong></p>
+        <p>${product.extra || ''}</p>
+        <button class="buy-btn" onclick="addToCart(products[${product.id - 1}])">Buy</button>
+        <button class="back-btn" onclick="renderProducts(); pagination.style.display='block';">← Back</button>
+      </div>
+    `;
+  }
+
+  function addToCart(product) {
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) existing.qty++;
+    else cart.push({ ...product, qty: 1 });
+    updateCart();
+    cartOverlay.style.display = 'flex';
+  }
+
+  function updateCart() {
+    cartItems.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <div>${item.title} x${item.qty}</div>
+        <div>$${item.qty * item.price}</div>
+        <button onclick="removeFromCart(${item.id})">✖</button>
+      `;
+      cartItems.appendChild(div);
+      total += item.qty * item.price;
+    });
+    totalDisplay.textContent = total;
+  }
+
+  function removeFromCart(id) {
+    const index = cart.findIndex(item => item.id === id);
+    if (index !== -1) cart.splice(index, 1);
+    updateCart();
+  }
+
+  document.getElementById("cartIcon").onclick = () => {
+    cartOverlay.style.display = 'flex';
+  };
+
+  document.getElementById("closeCart").onclick = () => {
+    cartOverlay.style.display = 'none';
+  };
+
+  document.getElementById("search").onclick = () => showDemo();
+  document.getElementById("profile").onclick = () => showDemo();
+  function showDemo() {
+    document.getElementById("demoScreen").style.display = 'flex';
+  }
+
+  renderProducts();
+  renderPagination();
+</script>
+
+</body>
+</html>
